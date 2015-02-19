@@ -28,10 +28,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-/**
- *
- * @author Cesar
- */
 public class JFrameJuanitoGame extends JFrame implements Runnable, KeyListener{
     
     private int iPuntos = 0;          // Entero de puntos con valor 100
@@ -114,8 +110,12 @@ public class JFrameJuanitoGame extends JFrame implements Runnable, KeyListener{
                 Toolkit.getDefaultToolkit().getImage(urlImagenMalo2));
             lklDiddy.add(basDiddy);
         }
-
+        
+        // se le aÃ±ade la opcion al applet de ser escuchado por los eventos
+        // del teclado
         addKeyListener(this);
+        
+        // se declaran objetos para los sonidos de las clase SoundClip
         socSonidoChimpy = new SoundClip("monkey1.wav");
         socSonidoDiddy = new SoundClip("monkey2.wav");
         socSonidoChimpy.setLooping(true);
@@ -145,6 +145,11 @@ public class JFrameJuanitoGame extends JFrame implements Runnable, KeyListener{
     		fileOut.close();
     		fileIn = new BufferedReader(new FileReader("Puntaje.txt"));
     	}
+        /*
+         * Primeramente se lee del archivo los valores de los puntos, vidas,
+         * velocidad de los changuitos, posiciones X y Y de juanito. Después
+         * se van leyendo las posiciones de Diddys y Chimpys
+         */
         int iX;
       	String dato = fileIn.readLine();
         iPuntos = Integer.parseInt(dato);
@@ -174,7 +179,10 @@ public class JFrameJuanitoGame extends JFrame implements Runnable, KeyListener{
     }
     
     /**
-     * Metodo que agrega la informacion del vector al archivo.
+     * Metodo que agrega la informacion del vector al archivo, agrega los puntos
+     * , vidas, velocidad de los changuitos, posicion de juanito y las
+     * posiciones de los changuitos, además se imprime la variable booleana
+     * bPausa, para reconocer si el juego fue guardado si estaba en pausa.
      *
      * @throws IOException
      */
@@ -348,17 +356,46 @@ public class JFrameJuanitoGame extends JFrame implements Runnable, KeyListener{
             }
         }
     }
-
+    
+    /**
+     * keyTyped
+     * 
+     * Metodo sobrescrito de la interface <code>KeyListener</code>.<P>
+     * En este metodo maneja el evento que se genera al presionar una 
+     * tecla que no es de accion.
+     * 
+     * @param keyEvent es el <code>KeyEvent</code> que se genera en al presionar.
+     * 
+     */
     @Override
     public void keyTyped(KeyEvent ke) {
     }
-
+    
+    /**
+     * keyPressed
+     * 
+     * Metodo sobrescrito de la interface <code>KeyListener</code>.<P>
+     * En este metodo maneja el evento que se genera al dejar presionada
+     * alguna tecla.
+     * 
+     * @param keyEvent es el <code>KeyEvent</code> que se genera en al presionar.
+     * 
+     */
     @Override
     public void keyPressed(KeyEvent ke) {
     }
-
+    
+    /**
+     * keyReleased
+     * Metodo sobrescrito de la interface <code>KeyListener</code>.<P>
+     * En este metodo maneja el evento que se genera al soltar la tecla.
+     * 
+     * @param keyEvent es el <code>KeyEvent</code> que se genera en al soltar.
+     * 
+     */
     @Override
     public void keyReleased(KeyEvent ke) {
+        // Presiono flecha arriba
         if (ke.getKeyCode() == KeyEvent.VK_UP) { 
             iDireccion = 1;
         } 
@@ -374,6 +411,8 @@ public class JFrameJuanitoGame extends JFrame implements Runnable, KeyListener{
         else if (ke.getKeyCode() == KeyEvent.VK_RIGHT) { 
             iDireccion = 4;
         }
+        
+        // Si se oprime P, el juego se pone en pausa
         if (ke.getKeyCode() == 'P') { 
             if (bPausa) {
                 bPausa = false;
@@ -382,13 +421,17 @@ public class JFrameJuanitoGame extends JFrame implements Runnable, KeyListener{
                 bPausa = true;
             }
         } 
+        
+        // Si se oprime la tecla Esc, el juego termina
         if (ke.getKeyCode() == KeyEvent.VK_ESCAPE) { 
             bGame = false;
         } 
-        if (ke.getKeyCode() == KeyEvent.VK_ESCAPE) { 
+        /*if (ke.getKeyCode() == KeyEvent.VK_ESCAPE) { 
             bGame = false;
-        } 
-          
+        } */
+        
+        // Al oprimir C, el juego se carga de acuerdo a lo que este en el
+        // ar chivo
         if(ke.getKeyCode() == 'C') {
             try {
                 leerArchivo();
@@ -397,6 +440,10 @@ public class JFrameJuanitoGame extends JFrame implements Runnable, KeyListener{
             }
         }
         
+        /*
+         * Se guarda en un archivo las posiciones de changuitos y juanito, así
+         * como también los puntos, vidas y velocidad.
+         */
         if(ke.getKeyCode() == 'G') {
             // Si hay un error se detecta y se atrapa 
             try {

@@ -3,10 +3,6 @@
  *
  * Modela la definiciÃ³n de todos los objetos de tipo
  * <code>Base</code>
- *
- * @author XXXXXXX
- * @version 99 
- * @date 99/XXX/99
  */
 
 package JFrameJuanitoGame;
