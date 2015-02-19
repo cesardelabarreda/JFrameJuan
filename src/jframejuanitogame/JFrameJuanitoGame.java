@@ -5,6 +5,7 @@
  */
 package jframejuanitogame;
 
+import java.applet.Applet;
 import java.applet.AudioClip;
 import java.awt.Graphics;
 import java.awt.Image;
@@ -15,6 +16,17 @@ import java.net.URL;
 import java.util.LinkedList;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 
 /**
  *
@@ -35,10 +47,11 @@ public class JFrameJuanitoGame extends JFrame implements Runnable, KeyListener{
     /* objetos para manejar el buffer del Applet y este no parpadee */
     private Image    imaImagenApplet;   // Imagen a proyectar en Applet	
     private Graphics graGraficaApplet;  // Objeto grafico de la Imagen
-    private AudioClip adcSonidoChimpy;   // Objeto sonido de Chimpy
-    private AudioClip adcSonidoDiddy;   // Objeto sonido de Chimpy
+    private SoundClip socSonidoChimpy;   // Objeto sonido de Chimpy
+    private SoundClip socSonidoDiddy;   // Objeto sonido de Chimpy
     private boolean bPausa = true;     // Se declara el booleano para pausar
     private boolean bGame = true;       //Boolean que finaliza el juego
+    private Vector vec;
 
 
     public JFrameJuanitoGame(){
@@ -46,12 +59,11 @@ public class JFrameJuanitoGame extends JFrame implements Runnable, KeyListener{
         setTitle("JuanitoGame");
         //Define la operación que se llevará acabo cuando la ventana sea cerrada.
         // Al cerrar, el programa terminará su ejecución
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         //Define el tamaño inicial de la ventana
         // hago el applet de un tamaño 500,500
         setSize(800,500);
 
-
+        vec = new Vector();
         URL urlImagenPrincipal = this.getClass().getResource("juanito.gif");
 
         int iAzarVidas = (int) (Math.random() * 3) + 4;
@@ -104,17 +116,91 @@ public class JFrameJuanitoGame extends JFrame implements Runnable, KeyListener{
         }
 
         addKeyListener(this);
-
-        URL urlSonidoChimpy = this.getClass().getResource("monkey1.wav");
-      //  adcSonidoChimpy = getAudioClip (urlSonidoChimpy);
-
-        URL urlSonidoDiddy = this.getClass().getResource("monkey2.wav");
-       // adcSonidoDiddy = getAudioClip (urlSonidoDiddy);
-
+        socSonidoChimpy = new SoundClip("monkey1.wav");
+        socSonidoDiddy = new SoundClip("monkey2.wav");
+        socSonidoChimpy.setLooping(true);
+        socSonidoDiddy.setLooping(true);
+        
         // Declaras un hilo
         Thread th = new Thread (this);
         // Empieza el hilo
         th.start ();
+        
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    }
+    
+    /**
+     * Metodo que lee a informacion de un archivo y lo agrega a un vector.
+     *
+     * @throws IOException
+     */
+    public void leerArchivo() throws IOException{
+    	BufferedReader fileIn;
+    	try{
+    		fileIn = new BufferedReader(new FileReader("Puntaje.txt"));
+    	} catch (FileNotFoundException e){
+    		File puntos = new File("Puntaje.txt");
+    		PrintWriter fileOut = new PrintWriter(puntos);
+    		fileOut.println("5");
+    		fileOut.close();
+    		fileIn = new BufferedReader(new FileReader("Puntaje.txt"));
+    	}
+        int iX;
+      	String dato = fileIn.readLine();
+        iPuntos = Integer.parseInt(dato);
+        dato = fileIn.readLine();
+        iVidas = Integer.parseInt(dato);
+        dato = fileIn.readLine();
+        iVel = Integer.parseInt(dato);
+        dato = fileIn.readLine();
+        basPrincipal.setX(Integer.parseInt(dato));
+        dato = fileIn.readLine();
+        basPrincipal.setY(Integer.parseInt(dato));
+        for (Base basDiddy : lklDiddy) {
+            dato = fileIn.readLine();
+            basDiddy.setX(Integer.parseInt(dato)); 
+            dato = fileIn.readLine();
+            basDiddy.setY(Integer.parseInt(dato)); 
+        }
+        for (Base basChimpy : lklChimpy) {
+            dato = fileIn.readLine();
+            basChimpy.setX(Integer.parseInt(dato)); 
+            dato = fileIn.readLine();
+            basChimpy.setY(Integer.parseInt(dato)); 
+        }
+        dato = fileIn.readLine();
+        bPausa = Boolean.parseBoolean(dato);
+        fileIn.close();
+    }
+    
+    /**
+     * Metodo que agrega la informacion del vector al archivo.
+     *
+     * @throws IOException
+     */
+    public void grabarArchivo() throws IOException{
+    	PrintWriter fileOut = new PrintWriter(new FileWriter("Puntaje.txt"));
+        fileOut.println(Integer.toString(iPuntos)); 
+        fileOut.println(Integer.toString(iVidas));
+        fileOut.println(Integer.toString(iVel));
+        fileOut.println(Integer.toString(basPrincipal.getX()));
+        fileOut.println(Integer.toString(basPrincipal.getY())); 
+        for (Base basDiddy : lklDiddy) {
+            fileOut.println(Integer.toString(basDiddy.getX()));
+            fileOut.println(Integer.toString(basDiddy.getY()));
+        }
+        for (Base basChimpy : lklChimpy) {
+            fileOut.println(Integer.toString(basChimpy.getX()));
+            fileOut.println(Integer.toString(basChimpy.getY()));
+        }
+        if(bPausa){
+            fileOut.println(bPausa);
+        }
+        else {
+            fileOut.println(bPausa);
+        }
+        
+    	fileOut.close();	
     }
     
     public void run () {
@@ -153,7 +239,10 @@ public class JFrameJuanitoGame extends JFrame implements Runnable, KeyListener{
         if (iVidas < 1) {
             bGame = false;
         }
-
+        
+        if(socSonidoDiddy.getRepeat() > 1) {
+            socSonidoDiddy.stop();
+        }
         // actualizo al fantasma a que vaya para la derecha
         for (Base basChimpy : lklChimpy) {
             basChimpy.setX(basChimpy.getX() - iVel);
@@ -225,7 +314,7 @@ public class JFrameJuanitoGame extends JFrame implements Runnable, KeyListener{
 
                 basChimpy.setX((iMAXANCHO - 1) * getWidth() / iMAXANCHO + iPosA);
                 basChimpy.setY(iAzar2 * getHeight() / iMAXALTO);
-                adcSonidoChimpy.play();
+                socSonidoChimpy.play();
 
             }
             if(basChimpy.getX() < 0) {   
@@ -245,7 +334,7 @@ public class JFrameJuanitoGame extends JFrame implements Runnable, KeyListener{
                 // se posiciona chango 
                 basDiddy.setX((int) (Math.random() * (3 *getWidth() / -4)));
                 basDiddy.setY(iAzar2 * getHeight() / iMAXALTO);
-                adcSonidoDiddy.play();
+                socSonidoDiddy.play();
                 int iAzar3 = (int) (Math.random() * 3) + 4;
                 iVel ++;
 
@@ -299,6 +388,24 @@ public class JFrameJuanitoGame extends JFrame implements Runnable, KeyListener{
         if (ke.getKeyCode() == KeyEvent.VK_ESCAPE) { 
             bGame = false;
         } 
+          
+        if(ke.getKeyCode() == 'C') {
+            try {
+                leerArchivo();
+            } catch (IOException ex) {
+                Logger.getLogger(Juego.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        
+        if(ke.getKeyCode() == 'G') {
+            // Si hay un error se detecta y se atrapa 
+            try {
+                grabarArchivo();
+            } catch (IOException ex) {
+                Logger.getLogger(Juego.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
     }
     
     public void paint (Graphics graGrafico){
@@ -334,38 +441,12 @@ public class JFrameJuanitoGame extends JFrame implements Runnable, KeyListener{
                 for (Base basDiddy : lklDiddy) {
                     basDiddy.paint(graDibujo, this);
                 }
-                graDibujo.drawString("Puntos: " + iPuntos, 50, 50);            
-                graDibujo.drawString("Vidas: " + iVidas, 50, 70);                            
+                graDibujo.drawString("Puntos: " + iPuntos, 50, 150);            
+                graDibujo.drawString("Vidas: " + iVidas, 50, 170);                            
         } // sino se ha cargado se dibuja un mensaje 
         else {
                 //Da un mensaje mientras se carga el dibujo	
                 graDibujo.drawString("No se cargo la imagen..", 20, 20);
         }
     }
-
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        //Crea un nuevo objeto JFrameHolaMundo
-        JFrameJuanitoGame Juego = new JFrameJuanitoGame();
-        //Despliega la ventana en pantalla al hacerla visible
-        Juego.setVisible(true);
-    }
-
-    
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
