@@ -2,6 +2,9 @@
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
+ * Cesar de la Barreda y Armando Aguilar
+ * Version 1
+ * 19/02/2015
  */
 package JFrameJuanitoGame;
 
@@ -454,7 +457,16 @@ public class JFrameJuanitoGame extends JFrame implements Runnable, KeyListener{
         }
 
     }
-    
+    /*paint
+     * 
+     * Metodo sobrescrito de la clase <code>Applet</code>,
+     * heredado de la clase Container.<P>
+     * En este metodo se dibuja el fondo del juego y manda a llamar a paint2
+     * 
+     * @param graGrafico es el objeto de <code>Graphics</code> 
+     * usado para dibujar.
+     * 
+     */
     public void paint (Graphics graGrafico){
         // Inicializan el DoubleBuffer
         if (imaImagenApplet == null){
@@ -465,8 +477,10 @@ public class JFrameJuanitoGame extends JFrame implements Runnable, KeyListener{
 
         // Actualiza la imagen de fondo.
         URL urlImagenFondo = this.getClass().getResource("Ciudad.png");
-        Image imaImagenFondo = Toolkit.getDefaultToolkit().getImage(urlImagenFondo);
-         graGraficaApplet.drawImage(imaImagenFondo, 0, 0, getWidth(), getHeight(), this);
+        Image imaImagenFondo = Toolkit.getDefaultToolkit()
+                .getImage(urlImagenFondo);
+         graGraficaApplet.drawImage(imaImagenFondo, 0, 0, 
+                 getWidth(), getHeight(), this);
 
         // Actualiza el Foreground.
         graGraficaApplet.setColor (getForeground());
@@ -476,6 +490,17 @@ public class JFrameJuanitoGame extends JFrame implements Runnable, KeyListener{
         graGrafico.drawImage (imaImagenApplet, 0, 0, this);
     }
     
+    /*paint2
+     * 
+     * Metodo sobrescrito de la clase <code>Applet</code>,
+     * heredado de la clase Container.<P>
+     * En este metodo se dibuja los objetos de Chimpys, Diddys y Juanito
+     * Dibuja sobre el Applet los puntos y las vidas    
+     * 
+     * @param graDibujo es el objeto de <code>Graphics</code> 
+     * usado para dibujar.
+     * 
+     */
     public void paint2(Graphics graDibujo) {
         // si la imagen ya se cargo
         if (basPrincipal != null) {
